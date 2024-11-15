@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "waves_cbot", "waves_cbot\waves_cbot.csproj", "{81c06d59-87fd-45dd-8f26-d1fd1553ac11}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "waves_cbot", "waves_cbot\waves_cbot.csproj", "{81C06D59-87FD-45DD-8F26-D1FD1553AC11}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cbot.Core", "Cbot.Core\Cbot.Core.csproj", "{574B1FD3-D868-4B14-A6BC-F014421DCE2E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{81c06d59-87fd-45dd-8f26-d1fd1553ac11}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{81c06d59-87fd-45dd-8f26-d1fd1553ac11}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{81c06d59-87fd-45dd-8f26-d1fd1553ac11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{574B1FD3-D868-4B14-A6BC-F014421DCE2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{574B1FD3-D868-4B14-A6BC-F014421DCE2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{574B1FD3-D868-4B14-A6BC-F014421DCE2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{574B1FD3-D868-4B14-A6BC-F014421DCE2E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
