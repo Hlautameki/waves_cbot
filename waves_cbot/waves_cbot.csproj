@@ -6,4 +6,8 @@
   <ItemGroup>
     <PackageReference Include="cTrader.Automate" Version="*" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Cbot.Core\Cbot.Core.csproj" />
+  </ItemGroup>
 </Project>
