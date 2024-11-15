@@ -3,12 +3,12 @@ using cAlgo.API.Indicators;
 
 namespace cAlgo.Robots;
 
-public class HullEntrySignalGenerator : IEntrySignalGenerator
+public class WavesEntrySignalGenerator : IEntrySignalGenerator
 {
     private readonly Bars _bars;
     private readonly HullMovingAverage _hullMa;
 
-    public HullEntrySignalGenerator(Bars bars, HullMovingAverage hullMa)
+    public WavesEntrySignalGenerator(Bars bars, HullMovingAverage hullMa)
     {
         _bars = bars;
         _hullMa = hullMa;

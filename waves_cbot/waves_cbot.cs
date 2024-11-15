@@ -53,11 +53,11 @@ namespace cAlgo.Robots
             var positionSizeCalculator =
                 new PositionSizeCalculator(Account, DepositRiskPercentage, Symbol, Quantity, PositionSizeType);
 
-            var stopLossCalculator = new HullStopLossCalculator(StopLossInPips, Bars, _hullMa);
+            var stopLossCalculator = new WavesStopLossCalculator(StopLossInPips, Bars, _hullMa);
 
             var positionManager = new PositionManager(ClosePosition, Positions, Label, SymbolName, Print, ExecuteMarketOrder, stopLossCalculator, positionSizeCalculator);
 
-            var entrySignalGenerator = new HullEntrySignalGenerator(Bars, _hullMa);
+            var entrySignalGenerator = new WavesEntrySignalGenerator(Bars, _hullMa);
 
             _tradeManager = new TradeManager(entrySignalGenerator,
                 Print, positionManager);
