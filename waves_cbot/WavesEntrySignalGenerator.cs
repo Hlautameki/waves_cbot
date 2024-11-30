@@ -16,11 +16,11 @@ public class WavesEntrySignalGenerator : IEntrySignalGenerator
 
     public bool CanBuy()
     {
-        return _bars.LastBar.Close > _waves.FastHighMA.LastValue;
+        return _bars.LastBar.Close > _waves.FastHighMA.LastValue && _bars.LastBar.Close > _waves.SlowHighMA.LastValue;
     }
 
     public bool CanSell()
     {
-        return _bars.LastBar.Close < _waves.FastLowMA.LastValue;
+        return _bars.LastBar.Close < _waves.FastLowMA.LastValue && _bars.LastBar.Close < _waves.SlowLowMA.LastValue;
     }
 }
