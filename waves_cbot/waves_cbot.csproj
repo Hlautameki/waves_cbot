@@ -1,13 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="cTrader.Automate" Version="*" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Cbot.Core\Cbot.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../Indicators/HTS_Waves2/HTS_Waves2/HTS_Waves2.csproj" />
   </ItemGroup>
 </Project>
