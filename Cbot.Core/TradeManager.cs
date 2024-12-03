@@ -8,16 +8,31 @@ public class TradeManager
     private readonly IEntrySignalGenerator _entrySignalGenerator;
     private readonly Action<string, object[]> _printAction;
     private readonly PositionManager _positionManager;
+    private readonly IExitSignalGenerator _exitSignalGenerator;
 
-    public TradeManager(IEntrySignalGenerator entrySignalGenerator, Action<string, object[]> print, PositionManager positionManager)
+    public TradeManager(IEntrySignalGenerator entrySignalGenerator,
+        Action<string, object[]> print,
+        PositionManager positionManager,
+        IExitSignalGenerator exitSignalGenerator)
     {
         _entrySignalGenerator = entrySignalGenerator;
         _printAction = print;
         _positionManager = positionManager;
+        _exitSignalGenerator = exitSignalGenerator;
     }
 
     public void ManageTrade()
     {
+        if (_exitSignalGenerator.CloseBuy())
+        {
+            _positionManager.CloseAll(TradeType.Buy);
+        }
+
+        if (_exitSignalGenerator.CloseSell())
+        {
+            _positionManager.CloseAll(TradeType.Sell);
+        }
+
         if (_entrySignalGenerator.CanBuy())
         {
             _positionManager.CloseAll(TradeType.Sell);

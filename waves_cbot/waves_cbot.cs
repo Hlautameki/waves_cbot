@@ -44,6 +44,9 @@ namespace cAlgo.Robots
         [Parameter("Stop Loss In Pips", DefaultValue = 10, Group = "Stop Loss")]
         public double StopLossInPips { get; set; }
 
+        [Parameter("Exit if price crosses slower band", DefaultValue = false, Group = "Exit")]
+        public bool ExitIfPriceCrossesSlowerBand { get; set; }
+
         private TradeManager _tradeManager;
 
         private FourMovingAveragesWithCloud _wavesIndicator;
@@ -72,8 +75,10 @@ namespace cAlgo.Robots
 
             var entrySignalGenerator = new WavesEntrySignalGenerator(Bars, _wavesIndicator);
 
+            var exitSignalGenerator = new WavesExitSignalGenerator(Bars, _wavesIndicator, ExitIfPriceCrossesSlowerBand);
+
             _tradeManager = new TradeManager(entrySignalGenerator,
-                Print, positionManager);
+                Print, positionManager, exitSignalGenerator);
         }
 
         protected override void OnBarClosed()
