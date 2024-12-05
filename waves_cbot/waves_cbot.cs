@@ -44,6 +44,9 @@ namespace cAlgo.Robots
         [Parameter("Stop Loss In Pips", DefaultValue = 10, Group = "Stop Loss")]
         public double StopLossInPips { get; set; }
 
+        [Parameter("Required bands distance to enter", DefaultValue = 0, Group = "Entry")]
+        public double RequiredBandsDistanceToEnter { get; set; }
+
         [Parameter("Exit if price crosses slower band", DefaultValue = false, Group = "Exit")]
         public bool ExitIfPriceCrossesSlowerBand { get; set; }
 
@@ -62,6 +65,8 @@ namespace cAlgo.Robots
             // To learn more about cTrader Automate visit our Help Center:
             // https://help.ctrader.com/ctrader-automate
 
+            Logger.Print = Print;
+
             _wavesIndicator = Indicators.GetIndicator<FourMovingAveragesWithCloud>(FastMaPeriod, SlowMaPeriod, MaType);
 
             // _hullMa = Indicators.HullMovingAverage(HullMaSource, HullMaPeriod);
@@ -73,7 +78,7 @@ namespace cAlgo.Robots
 
             var positionManager = new PositionManager(ClosePosition, Positions, Label, SymbolName, Print, ExecuteMarketOrder, stopLossCalculator, positionSizeCalculator);
 
-            var entrySignalGenerator = new WavesEntrySignalGenerator(Bars, _wavesIndicator);
+            var entrySignalGenerator = new WavesEntrySignalGenerator(Bars, Symbol, _wavesIndicator, RequiredBandsDistanceToEnter);
 
             var exitSignalGenerator = new WavesExitSignalGenerator(Bars, _wavesIndicator, ExitIfPriceCrossesSlowerBand);
 
