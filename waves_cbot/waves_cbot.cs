@@ -44,6 +44,9 @@ namespace cAlgo.Robots
         [Parameter("Stop Loss In Pips", DefaultValue = 10, Group = "Stop Loss")]
         public double StopLossInPips { get; set; }
 
+        [Parameter("Relative to slow band", DefaultValue = 0, Group = "Stop Loss")]
+        public double StopLossRelativeToSlowBand { get; set; }
+
         [Parameter("Required bands distance to enter", DefaultValue = 0, Group = "Entry")]
         public double RequiredBandsDistanceToEnter { get; set; }
 
@@ -77,7 +80,7 @@ namespace cAlgo.Robots
             var positionSizeCalculator =
                 new PositionSizeCalculator(Account, DepositRiskPercentage, Symbol, Quantity, PositionSizeType);
 
-            var stopLossCalculator = new WavesStopLossCalculator(StopLossInPips, Bars, _wavesIndicator);
+            var stopLossCalculator = new WavesStopLossCalculator(StopLossInPips, Bars, _wavesIndicator, StopLossRelativeToSlowBand, Symbol);
 
             var positionManager = new PositionManager(ClosePosition, Positions, Label, SymbolName, Print, ExecuteMarketOrder, stopLossCalculator, positionSizeCalculator);
 
