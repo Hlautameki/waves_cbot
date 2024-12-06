@@ -50,6 +50,9 @@ namespace cAlgo.Robots
         [Parameter("Exit if price crosses slower band", DefaultValue = false, Group = "Exit")]
         public bool ExitIfPriceCrossesSlowerBand { get; set; }
 
+        [Parameter("Bands crossover exit", DefaultValue = false, Group = "Exit")]
+        public bool BandsCrossoverExit { get; set; }
+
         private TradeManager _tradeManager;
 
         private FourMovingAveragesWithCloud _wavesIndicator;
@@ -80,7 +83,7 @@ namespace cAlgo.Robots
 
             var entrySignalGenerator = new WavesEntrySignalGenerator(Bars, Symbol, _wavesIndicator, RequiredBandsDistanceToEnter);
 
-            var exitSignalGenerator = new WavesExitSignalGenerator(Bars, _wavesIndicator, ExitIfPriceCrossesSlowerBand);
+            var exitSignalGenerator = new WavesExitSignalGenerator(Bars, _wavesIndicator, ExitIfPriceCrossesSlowerBand, BandsCrossoverExit);
 
             _tradeManager = new TradeManager(entrySignalGenerator,
                 Print, positionManager, exitSignalGenerator);
