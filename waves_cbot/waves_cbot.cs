@@ -47,6 +47,10 @@ namespace cAlgo.Robots
         [Parameter("Relative to slow band", DefaultValue = 0, Group = "Stop Loss")]
         public double StopLossRelativeToSlowBand { get; set; }
 
+        // For now only for relative to slower band
+        [Parameter("Trailing Stop Loss", DefaultValue = false, Group = "Stop Loss")]
+        public bool UseTrailingStopLoss { get; set; }
+
         [Parameter("Required bands distance to enter", DefaultValue = 0, Group = "Entry")]
         public double RequiredBandsDistanceToEnter { get; set; }
 
@@ -57,6 +61,8 @@ namespace cAlgo.Robots
         public bool BandsCrossoverExit { get; set; }
 
         private TradeManager _tradeManager;
+
+        private PositionManager _positionManager;
 
         private FourMovingAveragesWithCloud _wavesIndicator;
 
@@ -82,19 +88,24 @@ namespace cAlgo.Robots
 
             var stopLossCalculator = new WavesStopLossCalculator(StopLossInPips, Bars, _wavesIndicator, StopLossRelativeToSlowBand, Symbol);
 
-            var positionManager = new PositionManager(ClosePosition, Positions, Label, SymbolName, Print, ExecuteMarketOrder, stopLossCalculator, positionSizeCalculator);
+            _positionManager = new PositionManager(ClosePosition, Positions, Label, SymbolName, Print, ExecuteMarketOrder, stopLossCalculator, positionSizeCalculator);
 
             var entrySignalGenerator = new WavesEntrySignalGenerator(Bars, Symbol, _wavesIndicator, RequiredBandsDistanceToEnter);
 
             var exitSignalGenerator = new WavesExitSignalGenerator(Bars, _wavesIndicator, ExitIfPriceCrossesSlowerBand, BandsCrossoverExit);
 
             _tradeManager = new TradeManager(entrySignalGenerator,
-                Print, positionManager, exitSignalGenerator);
+                Print, _positionManager, exitSignalGenerator);
         }
 
         protected override void OnBarClosed()
         {
             _tradeManager.ManageTrade();
+
+            if (UseTrailingStopLoss)
+            {
+                _positionManager.UpdateStopLoss();
+            }
         }
 
         protected override void OnTick()

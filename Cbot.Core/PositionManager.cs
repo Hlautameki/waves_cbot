@@ -55,6 +55,18 @@ public class PositionManager
         }
     }
 
+    public void UpdateStopLoss()
+    {
+        if (_positions.Any())
+        {
+            var lastPosition = _positions.Last();
+
+            var stopLoss = _stopLossCalculator.GetStopLossInPrice(lastPosition.TradeType);
+
+            lastPosition.ModifyStopLossPrice(stopLoss);
+        }
+    }
+
     private void Print(string message)
     {
         _printAction(message, new object[] { });

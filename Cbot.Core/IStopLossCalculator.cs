@@ -5,4 +5,5 @@ namespace cAlgo.Robots;
 public interface IStopLossCalculator
 {
     double? GetStopLoss(TradeType tradeType);
+    double? GetStopLossInPrice(TradeType tradeType);
 }

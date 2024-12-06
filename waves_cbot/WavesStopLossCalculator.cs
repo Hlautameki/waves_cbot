@@ -38,4 +38,21 @@ public class WavesStopLossCalculator : IStopLossCalculator
 
         return _stopLossInPips;
     }
+
+    public double? GetStopLossInPrice(TradeType tradeType)
+    {
+        if (_stopLossRelativeToSlowBand > 0)
+        {
+            if (tradeType == TradeType.Buy)
+            {
+                return _waves.SlowLowMA.LastValue - _stopLossRelativeToSlowBand * _symbol.PipSize;
+            }
+            else
+            {
+                return _waves.SlowHighMA.LastValue + _stopLossRelativeToSlowBand * _symbol.PipSize;
+            }
+        }
+
+        return _stopLossInPips;
+    }
 }
