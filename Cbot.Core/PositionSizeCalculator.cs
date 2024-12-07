@@ -28,9 +28,9 @@ public class PositionSizeCalculator
         }
         else
         {
-            if (stopLossPips == null)
+            if (stopLossPips is null or 0)
             {
-                throw new ArgumentException("Stop Loss In Pips can not be null if Position Size Type is Relative");
+                throw new ArgumentException("Stop Loss In Pips can not be null or zero if Position Size Type is Relative");
             }
 
             return GetRelativePositionSize((double)stopLossPips);
