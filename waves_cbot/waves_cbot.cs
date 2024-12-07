@@ -51,6 +51,9 @@ namespace cAlgo.Robots
         [Parameter("Trailing Stop Loss", DefaultValue = false, Group = "Stop Loss")]
         public bool UseTrailingStopLoss { get; set; }
 
+        [Parameter("Take Profit", DefaultValue = false, Group = "Take Profit")]
+        public double TakeProfit { get; set; }
+
         [Parameter("Required bands distance to enter", DefaultValue = 0, Group = "Entry")]
         public double RequiredBandsDistanceToEnter { get; set; }
 
@@ -88,7 +91,9 @@ namespace cAlgo.Robots
 
             var stopLossCalculator = new WavesStopLossCalculator(StopLossInPips, Bars, _wavesIndicator, StopLossRelativeToSlowBand, Symbol);
 
-            _positionManager = new PositionManager(ClosePosition, Positions, Label, SymbolName, Print, ExecuteMarketOrder, stopLossCalculator, positionSizeCalculator);
+            var takeProfitCalculator = new WavesTakeProfitCalculator(TakeProfit);
+
+            _positionManager = new PositionManager(ClosePosition, Positions, Label, SymbolName, Print, ExecuteMarketOrder, stopLossCalculator, positionSizeCalculator, takeProfitCalculator);
 
             var entrySignalGenerator = new WavesEntrySignalGenerator(Bars, Symbol, _wavesIndicator, RequiredBandsDistanceToEnter);
 

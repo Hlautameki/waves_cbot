@@ -14,16 +14,17 @@ public class PositionManager
     private readonly Func<TradeType, string, double, string, double?, double?, TradeResult> _executeMarketOrder;
     private readonly IStopLossCalculator _stopLossCalculator;
     private readonly PositionSizeCalculator _positionSizeCalculator;
+    private readonly ITakeProfitCalculator _takeProfitCalculator;
 
 
-    public PositionManager(
-        Func<Position, TradeResult> closePosition,
+    public PositionManager(Func<Position, TradeResult> closePosition,
         Positions positions, string label,
         string symbolName,
         Action<string, object[]> print,
         Func<TradeType, string, double, string, double?, double?, TradeResult> executeMarketOrder,
         IStopLossCalculator stopLossCalculator,
-        PositionSizeCalculator positionSizeCalculator)
+        PositionSizeCalculator positionSizeCalculator,
+        ITakeProfitCalculator takeProfitCalculator)
     {
         _closePosition = closePosition;
         _positions = positions;
@@ -33,6 +34,7 @@ public class PositionManager
         _executeMarketOrder = executeMarketOrder;
         _stopLossCalculator = stopLossCalculator;
         _positionSizeCalculator = positionSizeCalculator;
+        _takeProfitCalculator = takeProfitCalculator;
     }
 
     public void CloseAll(TradeType tradeType)
@@ -50,8 +52,9 @@ public class PositionManager
         if (!openedPositions.Any())
         {
             var stopLoss = _stopLossCalculator.GetStopLoss(tradeType);
+            var takeProfit = _takeProfitCalculator.CalculateTakeProfit();
             var positionSize = _positionSizeCalculator.CalculatePositionSize(stopLoss);
-            _executeMarketOrder(tradeType, _symbolName, positionSize, _label, stopLoss, null);
+            _executeMarketOrder(tradeType, _symbolName, positionSize, _label, stopLoss, takeProfit);
         }
     }
 
