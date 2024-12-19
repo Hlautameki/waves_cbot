@@ -48,8 +48,8 @@ namespace cAlgo.Robots
         public double StopLossRelativeToSlowBand { get; set; }
 
         // For now only for relative to slower band
-        [Parameter("Trailing Stop Loss", DefaultValue = false, Group = "Stop Loss")]
-        public bool UseTrailingStopLoss { get; set; }
+        // [Parameter("Trailing Stop Loss", DefaultValue = false, Group = "Stop Loss")]
+        // public bool UseTrailingStopLoss { get; set; }
 
         [Parameter("Take Profit", DefaultValue = false, Group = "Take Profit")]
         public double TakeProfit { get; set; }
@@ -107,10 +107,10 @@ namespace cAlgo.Robots
         {
             _tradeManager.ManageTrade();
 
-            if (UseTrailingStopLoss)
-            {
-                _positionManager.UpdateStopLoss();
-            }
+            // if (UseTrailingStopLoss)
+            // {
+            _positionManager.UpdateStopLoss();
+            // }
         }
 
         protected override void OnTick()
