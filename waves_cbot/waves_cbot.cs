@@ -32,10 +32,10 @@ namespace cAlgo.Robots
         // [Parameter("Period", DefaultValue = 30, Group = "Hull MA")]
         // public int HullMaPeriod { get; set; }
 
-        [Parameter("Fast MA Period", Group = "Waves")]
+        [Parameter("Fast MA Period", Group = "Waves", DefaultValue = 33)]
         public int FastMaPeriod { get; set; }
 
-        [Parameter("Slow MA Period", Group = "Waves")]
+        [Parameter("Slow MA Period", Group = "Waves", DefaultValue = 144)]
         public int SlowMaPeriod { get; set; }
 
         [Parameter("MA Type", DefaultValue = MovingAverageType.WilderSmoothing, Group = "Waves")]
