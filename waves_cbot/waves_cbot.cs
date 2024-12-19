@@ -6,7 +6,7 @@ using cAlgo.API.Internals;
 
 namespace cAlgo.Robots
 {
-    [Robot(AccessRights = AccessRights.None, AddIndicators = true)]
+    [Robot(AccessRights = AccessRights.FullAccess, AddIndicators = true)]
     public class waves_cbot : Robot
     {
         [Parameter("Position Size Type", DefaultValue = PositionSizeType.Fixed, Group = "Volume")]

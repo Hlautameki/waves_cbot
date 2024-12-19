@@ -64,9 +64,9 @@ public class PositionManager
         {
             var lastPosition = _positions.Last();
 
-            var stopLoss = _stopLossCalculator.GetStopLossInPrice(lastPosition.TradeType);
+            var stopLossNew = _stopLossCalculator.GetStopLossInPrice(lastPosition);
 
-            lastPosition.ModifyStopLossPrice(stopLoss);
+            lastPosition.ModifyStopLossPrice(stopLossNew);
         }
     }
 
