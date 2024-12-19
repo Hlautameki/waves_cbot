@@ -23,7 +23,7 @@ namespace cAlgo.Robots
         [Parameter(DefaultValue = "Hello world!")]
         public string Message { get; set; }
 
-        [Parameter("Label", Group = "Positions", DefaultValue = "HullMovingAverageSample")]
+        [Parameter("Label", Group = "Positions", DefaultValue = "WavesBot")]
         public string Label { get; set; }
 
         // [Parameter("Source", Group = "Hull MA")]
