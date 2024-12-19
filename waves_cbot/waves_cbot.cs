@@ -57,6 +57,9 @@ namespace cAlgo.Robots
         [Parameter("Required bands distance to enter", DefaultValue = 0, Group = "Entry")]
         public double RequiredBandsDistanceToEnter { get; set; }
 
+        [Parameter("Price to fast band maximal distance", DefaultValue = 0, Group = "Entry")]
+        public double PriceToFastBandMaximalDistance { get; set; }
+
         [Parameter("Exit if price crosses slower band", DefaultValue = false, Group = "Exit")]
         public bool ExitIfPriceCrossesSlowerBand { get; set; }
 
@@ -95,7 +98,7 @@ namespace cAlgo.Robots
 
             _positionManager = new PositionManager(ClosePosition, Positions, Label, SymbolName, Print, ExecuteMarketOrder, stopLossCalculator, positionSizeCalculator, takeProfitCalculator);
 
-            var entrySignalGenerator = new WavesEntrySignalGenerator(Bars, Symbol, _wavesIndicator, RequiredBandsDistanceToEnter);
+            var entrySignalGenerator = new WavesEntrySignalGenerator(Bars, Symbol, _wavesIndicator, RequiredBandsDistanceToEnter, PriceToFastBandMaximalDistance);
 
             var exitSignalGenerator = new WavesExitSignalGenerator(Bars, _wavesIndicator, ExitIfPriceCrossesSlowerBand, BandsCrossoverExit);
 
