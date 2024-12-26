@@ -66,6 +66,12 @@ public class PositionManager
 
             var stopLossNew = _stopLossCalculator.GetStopLossInPrice(lastPosition);
 
+            if (lastPosition.TradeType == TradeType.Buy && lastPosition.StopLoss < stopLossNew)
+                return;
+
+            if (lastPosition.TradeType == TradeType.Sell && lastPosition.StopLoss > stopLossNew)
+                return;
+
             lastPosition.ModifyStopLossPrice(stopLossNew);
         }
     }

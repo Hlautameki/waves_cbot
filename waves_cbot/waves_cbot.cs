@@ -47,6 +47,12 @@ namespace cAlgo.Robots
         [Parameter("Relative to slow band", DefaultValue = 0, Group = "Stop Loss")]
         public double StopLossRelativeToSlowBand { get; set; }
 
+        [Parameter("Break Even Trigger (Pips)", DefaultValue = 0, Group = "Stop Loss")]
+        public double BreakEvenTrigger { get; set; }
+
+        [Parameter("Break Even Offset (Pips)", DefaultValue = 1, Group = "Stop Loss")]
+        public double BreakEvenOffset { get; set; }
+
         // For now only for relative to slower band
         // [Parameter("Trailing Stop Loss", DefaultValue = false, Group = "Stop Loss")]
         // public bool UseTrailingStopLoss { get; set; }
@@ -121,7 +127,44 @@ namespace cAlgo.Robots
 
         protected override void OnTick()
         {
-            // Handle price updates here
+            // Disable Break Even strategy if BreakEvenTrigger is 0
+            if (BreakEvenTrigger == 0)
+                return;
+
+            foreach (var position in Positions)
+            {
+                // Ensure we're dealing with the positions for this robot
+                if (position.Label != this.Label)
+                    continue;
+
+                // Calculate profit in pips
+                double profitPips = position.TradeType == TradeType.Buy
+                    ? (Symbol.Bid - position.EntryPrice) / Symbol.PipSize
+                    : (position.EntryPrice - Symbol.Ask) / Symbol.PipSize;
+
+                // Check if profit has reached the Break Even Trigger
+                if (profitPips >= BreakEvenTrigger)
+                {
+                    MoveStopLossToBreakEven(position);
+                }
+            }
+        }
+
+        private void MoveStopLossToBreakEven(Position position)
+        {
+            double newStopLossPrice = position.TradeType == TradeType.Buy
+                ? position.EntryPrice + Symbol.PipSize * BreakEvenOffset
+                : position.EntryPrice - Symbol.PipSize * BreakEvenOffset;
+
+            // Check if Stop Loss is already at or beyond the Break Even price
+            if ((position.TradeType == TradeType.Buy && position.StopLoss >= newStopLossPrice) ||
+                (position.TradeType == TradeType.Sell && position.StopLoss <= newStopLossPrice))
+                return;
+
+            // Modify the position to move the stop loss
+            ModifyPosition(position, newStopLossPrice, position.TakeProfit);
+
+            Print($"Moved Stop Loss to Break Even for {position.TradeType} position: {position.Id}");
         }
 
         protected override void OnStop()
