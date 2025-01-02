@@ -106,11 +106,11 @@ public class WavesEntrySignalGenerator : IEntrySignalGenerator
 
         if (tradeType == TradeType.Buy)
         {
-            return buyOrders <= _entryNumberPerCrossOver;
+            return buyOrders < _entryNumberPerCrossOver;
         }
         else
         {
-            return sellOrders <= _entryNumberPerCrossOver;
+            return sellOrders < _entryNumberPerCrossOver;
         }
     }
 
