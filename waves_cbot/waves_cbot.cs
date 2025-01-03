@@ -47,6 +47,9 @@ namespace cAlgo.Robots
         [Parameter("Relative to slow band", DefaultValue = 0, Group = "Stop Loss")]
         public double StopLossRelativeToSlowBand { get; set; }
 
+        [Parameter("Relative to fast band", DefaultValue = 0, Group = "Stop Loss")]
+        public double StopLossRelativeToFastBand { get; set; }
+
         [Parameter("Break Even Trigger (Pips)", DefaultValue = 0, Group = "Stop Loss")]
         public double BreakEvenTrigger { get; set; }
 
@@ -101,7 +104,7 @@ namespace cAlgo.Robots
             var positionSizeCalculator =
                 new PositionSizeCalculator(Account, DepositRiskPercentage, Symbol, Quantity, PositionSizeType);
 
-            var stopLossCalculator = new WavesStopLossCalculator(StopLossInPips, Bars, _wavesIndicator, StopLossRelativeToSlowBand, Symbol);
+            var stopLossCalculator = new WavesStopLossCalculator(StopLossInPips, Bars, _wavesIndicator, StopLossRelativeToSlowBand, Symbol, StopLossRelativeToFastBand);
 
             var takeProfitCalculator = new WavesTakeProfitCalculator(TakeProfit);
 
