@@ -1,5 +1,6 @@
+using System.Collections.Generic;
+using System.Linq;
 using cAlgo.API;
-using cAlgo.API.Indicators;
 using cAlgo.API.Internals;
 
 namespace cAlgo.Robots;
@@ -26,29 +27,11 @@ public class WavesStopLossCalculator : IStopLossCalculator
 
     public double? GetStopLoss(TradeType tradeType)
     {
-        double stopLossRelativeInPips = 0;
-
         var stopLossInPipsRelativeToSlowBand = GetStopLossInPipsRelativeToSlowBand(tradeType);
 
         var stopLossInPipsRelativeToFastBand = GetStopLossInPipsRelativeToFastBand(tradeType);
 
-
-        if (stopLossInPipsRelativeToSlowBand == 0 || stopLossInPipsRelativeToFastBand < stopLossInPipsRelativeToSlowBand)
-        {
-            stopLossRelativeInPips = stopLossInPipsRelativeToFastBand;
-        }
-
-        if (stopLossRelativeInPips > 0)
-        {
-            if (_stopLossInPipsFixed > 0 && _stopLossInPipsFixed < stopLossRelativeInPips)
-            {
-                return _stopLossInPipsFixed;
-            }
-
-            return stopLossRelativeInPips;
-        }
-
-        return _stopLossInPipsFixed;
+        return GetLowestNonZeroValue(stopLossInPipsRelativeToSlowBand, stopLossInPipsRelativeToFastBand, _stopLossInPipsFixed);
     }
 
     private double GetStopLossInPipsRelativeToSlowBand(TradeType tradeType)
@@ -89,36 +72,73 @@ public class WavesStopLossCalculator : IStopLossCalculator
 
     public double? GetStopLossInPrice(Position position)
     {
+        double stopLossInPriceRelativeToSlowBand = GetStopLossInPriceRelativeToSlowBand(position);
+        double stopLossInPriceRelativeToFastBand = GetStopLossInPriceRelativeToFastBand(position);
+
+        return GetStopLossPrice(stopLossInPriceRelativeToSlowBand, stopLossInPriceRelativeToFastBand,
+            position.StopLoss.HasValue ? position.StopLoss.Value : 0, position.TradeType);
+    }
+
+    private double GetStopLossInPriceRelativeToSlowBand(Position position)
+    {
         if (_stopLossRelativeToSlowBand > 0)
         {
-            double stopLossRelativeInPrice;
-
             if (position.TradeType == TradeType.Buy)
             {
-                stopLossRelativeInPrice = _waves.SlowLowMA.LastValue - _stopLossRelativeToSlowBand * _symbol.PipSize;
+                return _waves.SlowLowMA.LastValue - _stopLossRelativeToSlowBand * _symbol.PipSize;
             }
             else
             {
-                stopLossRelativeInPrice = _waves.SlowHighMA.LastValue + _stopLossRelativeToSlowBand * _symbol.PipSize;
+                return _waves.SlowHighMA.LastValue + _stopLossRelativeToSlowBand * _symbol.PipSize;
             }
-
-            if (_stopLossInPipsFixed > 0)
-            {
-                double stopLossFixedInPrice = position.StopLoss.Value;
-
-                if (position.TradeType == TradeType.Buy && stopLossFixedInPrice > stopLossRelativeInPrice)
-                {
-                    return stopLossFixedInPrice;
-                }
-                else if (position.TradeType == TradeType.Sell && stopLossFixedInPrice < stopLossRelativeInPrice)
-                {
-                    return stopLossFixedInPrice;
-                }
-            }
-
-            return stopLossRelativeInPrice;
         }
 
-        return _stopLossInPipsFixed * _symbol.PipSize;
+        return 0;
+    }
+
+    private double GetStopLossInPriceRelativeToFastBand(Position position)
+    {
+        if (_stopLossRelativeToFastBand > 0)
+        {
+            if (position.TradeType == TradeType.Buy)
+            {
+                return _waves.FastLowMA.LastValue - _stopLossRelativeToFastBand * _symbol.PipSize;
+            }
+            else
+            {
+                return _waves.FastHighMA.LastValue + _stopLossRelativeToFastBand * _symbol.PipSize;
+            }
+        }
+
+        return 0;
+    }
+
+    static double GetLowestNonZeroValue(double a, double b, double c)
+    {
+        double[] values = { a, b, c };
+        var nonZeroValues = values.Where(val => val != 0).ToArray();
+
+        if (!nonZeroValues.Any())
+            return 0;
+
+        return nonZeroValues.Min();
+    }
+
+    private double GetStopLossPrice(double price1, double price2, double price3, TradeType tradeType)
+    {
+        // Exclude ignored prices (0 or less)
+        var validPrices = new List<double>();
+        if (price1 > 0) validPrices.Add(price1);
+        if (price2 > 0) validPrices.Add(price2);
+        if (price3 > 0) validPrices.Add(price3);
+
+        // If all prices are ignored, return 0 (no update possible)
+        if (validPrices.Count == 0)
+            return 0;
+
+        // Determine the price based on the trade type
+        return tradeType == TradeType.Buy
+            ? validPrices.Max() // For long positions, get the highest price
+            : validPrices.Min(); // For short positions, get the lowest price
     }
 }
