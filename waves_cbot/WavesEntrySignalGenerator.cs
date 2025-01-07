@@ -95,7 +95,7 @@ public class WavesEntrySignalGenerator : IEntrySignalGenerator
 
         foreach (var deal in _history)
         {
-            if (deal.ClosingTime >= lastCrossoverTime)
+            if (lastCrossoverTime == null || deal.ClosingTime >= lastCrossoverTime)
             {
                 if (deal.TradeType == TradeType.Buy)
                     buyOrders++;
