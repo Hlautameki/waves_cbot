@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using cAlgo.API;
@@ -13,9 +14,11 @@ public class WavesStopLossCalculator : IStopLossCalculator
     private readonly double _stopLossRelativeToSlowBand;
     private readonly Symbol _symbol;
     private readonly double _stopLossRelativeToFastBand;
+    private readonly double _stopLossRelativeToFastBandTrigger;
 
     public WavesStopLossCalculator(double stopLossInPipsFixed, Bars bars, FourMovingAveragesWithCloud waves,
-        double stopLossRelativeToSlowBand, Symbol symbol, double stopLossRelativeToFastBand)
+        double stopLossRelativeToSlowBand, Symbol symbol, double stopLossRelativeToFastBand,
+        double stopLossRelativeToFastBandTrigger)
     {
         _stopLossInPipsFixed = stopLossInPipsFixed;
         _bars = bars;
@@ -23,6 +26,7 @@ public class WavesStopLossCalculator : IStopLossCalculator
         _stopLossRelativeToSlowBand = stopLossRelativeToSlowBand;
         _symbol = symbol;
         _stopLossRelativeToFastBand = stopLossRelativeToFastBand;
+        _stopLossRelativeToFastBandTrigger = stopLossRelativeToFastBandTrigger;
     }
 
     public double? GetStopLoss(TradeType tradeType)
@@ -55,6 +59,11 @@ public class WavesStopLossCalculator : IStopLossCalculator
     {
         if (_stopLossRelativeToFastBand > 0)
         {
+            var priceMovementSinceEntry = GetPriceMovementSinceEntry(_bars.LastBar.Close, _bars.LastBar.OpenTime, tradeType);
+
+            if (_stopLossRelativeToFastBandTrigger > 0 && priceMovementSinceEntry < _stopLossRelativeToFastBandTrigger)
+                return 0;
+
             if (tradeType == TradeType.Buy)
             {
                 return (_bars.LastBar.Close -
@@ -100,6 +109,11 @@ public class WavesStopLossCalculator : IStopLossCalculator
     {
         if (_stopLossRelativeToFastBand > 0)
         {
+            var priceMovementSinceEntry = GetPriceMovementSinceEntry(position.EntryPrice, position.EntryTime, position.TradeType);
+
+            if (_stopLossRelativeToFastBandTrigger > 0 && priceMovementSinceEntry < _stopLossRelativeToFastBandTrigger)
+                return 0;
+
             if (position.TradeType == TradeType.Buy)
             {
                 return _waves.FastLowMA.LastValue - _stopLossRelativeToFastBand * _symbol.PipSize;
@@ -141,4 +155,36 @@ public class WavesStopLossCalculator : IStopLossCalculator
             ? validPrices.Max() // For long positions, get the highest price
             : validPrices.Min(); // For short positions, get the lowest price
     }
+
+    private double GetPriceMovementSinceEntry(double entryPrice, DateTime entryTime, TradeType tradeType)
+    {
+        // Find the index of the bar corresponding to the entry time
+        int entryIndex = _bars.OpenTimes.GetIndexByTime(entryTime);
+
+        if (entryIndex < 0)
+            return 0;
+
+        // Iterate through the bars from entry time to current
+        for (int i = entryIndex; i < _bars.Count; i++)
+        {
+            double priceMovement;
+
+            if (tradeType == TradeType.Buy)
+            {
+                // For Buy, check how far the price has risen
+                priceMovement = (_bars.HighPrices[i] - entryPrice) / _symbol.PipSize;
+            }
+            else
+            {
+                // For Sell, check how far the price has fallen
+                priceMovement = (entryPrice - _bars.LowPrices[i]) / _symbol.PipSize;
+            }
+
+            if (priceMovement >= 100)
+                return priceMovement; // Return the movement if it meets or exceeds 100 pips
+        }
+
+        return 0; // No significant movement found
+    }
+
 }
