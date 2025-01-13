@@ -164,27 +164,31 @@ public class WavesStopLossCalculator : IStopLossCalculator
         if (entryIndex < 0)
             return 0;
 
+        double priceMovement = 0;
+
         // Iterate through the bars from entry time to current
         for (int i = entryIndex; i < _bars.Count; i++)
         {
-            double priceMovement;
+            double movement;
 
             if (tradeType == TradeType.Buy)
             {
                 // For Buy, check how far the price has risen
-                priceMovement = (_bars.HighPrices[i] - entryPrice) / _symbol.PipSize;
+                movement = (_bars.HighPrices[i] - entryPrice) / _symbol.PipSize;
             }
             else
             {
                 // For Sell, check how far the price has fallen
-                priceMovement = (entryPrice - _bars.LowPrices[i]) / _symbol.PipSize;
+                movement = (entryPrice - _bars.LowPrices[i]) / _symbol.PipSize;
             }
 
-            if (priceMovement >= 100)
-                return priceMovement; // Return the movement if it meets or exceeds 100 pips
+            if (movement > priceMovement)
+            {
+                priceMovement = movement;
+            }
         }
 
-        return 0; // No significant movement found
+        return priceMovement;
     }
 
 }
