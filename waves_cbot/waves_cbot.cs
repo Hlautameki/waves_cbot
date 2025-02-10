@@ -1,8 +1,4 @@
-using System;
 using cAlgo.API;
-using cAlgo.API.Collections;
-using cAlgo.API.Indicators;
-using cAlgo.API.Internals;
 
 namespace cAlgo.Robots
 {
@@ -37,6 +33,9 @@ namespace cAlgo.Robots
 
         [Parameter("Slow MA Period", Group = "Waves", DefaultValue = 144)]
         public int SlowMaPeriod { get; set; }
+
+        [Parameter("Ultimate MA Period", Group = "Waves", DefaultValue = 576)]
+        public int UltimateMaPeriod { get; set; }
 
         [Parameter("MA Type", DefaultValue = MovingAverageType.WilderSmoothing, Group = "Waves")]
         public MovingAverageType MaType { get; set; }
@@ -75,6 +74,9 @@ namespace cAlgo.Robots
         [Parameter("Entry number per crossover", DefaultValue = 0, Group = "Entry")]
         public int EntryNumberPerCrossOver { get; set; }
 
+        [Parameter("Higher TimeFrame Condition", DefaultValue = HigherTimeFrameConditionEnum.None, Group = "Entry")]
+        public HigherTimeFrameConditionEnum HigherTimeFrameCondition { get; set; }
+
         [Parameter("Exit if price crosses slower band", DefaultValue = false, Group = "Exit")]
         public bool ExitIfPriceCrossesSlowerBand { get; set; }
 
@@ -100,9 +102,7 @@ namespace cAlgo.Robots
 
             Logger.Print = Print;
 
-            _wavesIndicator = Indicators.GetIndicator<FourMovingAveragesWithCloud>(FastMaPeriod, SlowMaPeriod, MaType);
-
-            // _hullMa = Indicators.HullMovingAverage(HullMaSource, HullMaPeriod);
+            _wavesIndicator = Indicators.GetIndicator<FourMovingAveragesWithCloud>(FastMaPeriod, SlowMaPeriod, UltimateMaPeriod,this.HigherTimeFrameCondition != HigherTimeFrameConditionEnum.None, MaType);
 
             var positionSizeCalculator =
                 new PositionSizeCalculator(Account, DepositRiskPercentage, Symbol, Quantity, PositionSizeType);
@@ -113,7 +113,10 @@ namespace cAlgo.Robots
 
             _positionManager = new PositionManager(ClosePosition, Positions, Label, SymbolName, Print, ExecuteMarketOrder, stopLossCalculator, positionSizeCalculator, takeProfitCalculator);
 
-            var entrySignalGenerator = new WavesEntrySignalGenerator(Bars, Symbol, History, _wavesIndicator, RequiredBandsDistanceToEnter, PriceToFastBandMaximalDistance, EntryNumberPerCrossOver);
+            var higherTimeFrameEntryCondition =
+                new HigherTimeFrameEntryCondition(Bars, _wavesIndicator, HigherTimeFrameCondition);
+
+            var entrySignalGenerator = new WavesEntrySignalGenerator(Bars, Symbol, History, _wavesIndicator, RequiredBandsDistanceToEnter, PriceToFastBandMaximalDistance, EntryNumberPerCrossOver, higherTimeFrameEntryCondition);
 
             var exitSignalGenerator = new WavesExitSignalGenerator(Bars, _wavesIndicator, ExitIfPriceCrossesSlowerBand, BandsCrossoverExit);
 

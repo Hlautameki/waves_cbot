@@ -13,9 +13,10 @@ public class WavesEntrySignalGenerator : IEntrySignalGenerator
     private readonly double _requiredBandsDistanceToEnter;
     private readonly double _priceToFastBandMaximalDistance;
     private readonly int _entryNumberPerCrossOver;
+    private readonly IEntryCondition _higherTimeFrameEntryCondition;
 
     public WavesEntrySignalGenerator(Bars bars, Symbol symbol, History history, FourMovingAveragesWithCloud waves,
-        double requiredBandsDistanceToEnter, double priceToFastBandMaximalDistance, int entryNumberPerCrossOver)
+        double requiredBandsDistanceToEnter, double priceToFastBandMaximalDistance, int entryNumberPerCrossOver, IEntryCondition higherTimeFrameEntryCondition)
     {
         _bars = bars;
         _symbol = symbol;
@@ -24,6 +25,7 @@ public class WavesEntrySignalGenerator : IEntrySignalGenerator
         _requiredBandsDistanceToEnter = requiredBandsDistanceToEnter;
         _priceToFastBandMaximalDistance = priceToFastBandMaximalDistance;
         _entryNumberPerCrossOver = entryNumberPerCrossOver;
+        _higherTimeFrameEntryCondition = higherTimeFrameEntryCondition;
     }
 
     public bool CanBuy()
@@ -31,7 +33,8 @@ public class WavesEntrySignalGenerator : IEntrySignalGenerator
         return FastBandMovesAboveSlowBand()
                && AreBandsFarEnoughToBuy()
                && IsPriceCloseEnoughToFastBand(TradeType.Buy)
-               && IsThereARoomForAdditionalTradeInCrossOver(TradeType.Buy);
+               && IsThereARoomForAdditionalTradeInCrossOver(TradeType.Buy)
+               && _higherTimeFrameEntryCondition.CanBuy();
     }
 
     private bool FastBandMovesAboveSlowBand()
@@ -50,7 +53,8 @@ public class WavesEntrySignalGenerator : IEntrySignalGenerator
         return FastBandMovesBelowSlowBand()
                && AreBandsFarEnoughToSell()
                && IsPriceCloseEnoughToFastBand(TradeType.Sell)
-               && IsThereARoomForAdditionalTradeInCrossOver(TradeType.Sell);
+               && IsThereARoomForAdditionalTradeInCrossOver(TradeType.Sell)
+               && _higherTimeFrameEntryCondition.CanSell();
     }
 
     private bool FastBandMovesBelowSlowBand()
