@@ -128,11 +128,22 @@ public class WavesEntrySignalGenerator : IEntrySignalGenerator
             double slowCurrent = _waves.SlowHighMA[i];// _slowMA.Result[i];
 
             // Check for crossover
-            if ((fastPrev <= slowPrev && fastCurrent > slowCurrent) || (fastPrev >= slowPrev && fastCurrent < slowCurrent))
+            if (CrossLong() || CrossShort())
             {
                 return _bars.OpenTimes[i]; // Return the time of the crossover
             }
+
+            bool CrossLong()
+            {
+                return _waves.FastLowMA[i + 1] <= _waves.SlowHighMA[i + 1] && _waves.FastLowMA[i] > _waves.SlowHighMA[i];
+            }
+
+            bool CrossShort()
+            {
+                return _waves.FastHighMA[i + 1] >= _waves.SlowLowMA[i + 1] && _waves.FastHighMA[i] < _waves.SlowLowMA[i];
+            }
         }
+
 
         return null; // Return null if no crossover is found
     }
