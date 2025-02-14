@@ -46,7 +46,7 @@ public class PositionSizeCalculator
         double riskAmount = accountEquity * (_depositRiskPercentage / 100);
 
         // Calculate the value of one pip for a standard lot
-        double pipValuePerLot = _symbol.PipValue * 100000;
+        double pipValuePerLot = _symbol.PipValue * _symbol.LotSize;
 
         // Calculate the position size (in lots) needed to risk the given amount with the specified stop loss
         double positionSize = (riskAmount / (stopLossInPips * pipValuePerLot));
