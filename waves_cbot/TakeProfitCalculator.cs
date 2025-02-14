@@ -1,10 +1,10 @@
 namespace cAlgo.Robots;
 
-public class WavesTakeProfitCalculator : ITakeProfitCalculator
+public class TakeProfitCalculator : ITakeProfitCalculator
 {
     private readonly double _takeProfit;
 
-    public WavesTakeProfitCalculator(double takeProfit)
+    public TakeProfitCalculator(double takeProfit)
     {
         _takeProfit = takeProfit;
     }

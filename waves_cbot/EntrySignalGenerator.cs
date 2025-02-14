@@ -4,7 +4,7 @@ using cAlgo.API.Internals;
 
 namespace cAlgo.Robots;
 
-public class WavesEntrySignalGenerator : IEntrySignalGenerator
+public class EntrySignalGenerator : IEntrySignalGenerator
 {
     private readonly Bars _bars;
     private readonly Symbol _symbol;
@@ -15,7 +15,7 @@ public class WavesEntrySignalGenerator : IEntrySignalGenerator
     private readonly int _entryNumberPerCrossOver;
     private readonly IEntryCondition _higherTimeFrameEntryCondition;
 
-    public WavesEntrySignalGenerator(Bars bars, Symbol symbol, History history, FourMovingAveragesWithCloud waves,
+    public EntrySignalGenerator(Bars bars, Symbol symbol, History history, FourMovingAveragesWithCloud waves,
         double requiredBandsDistanceToEnter, double priceToFastBandMaximalDistance, int entryNumberPerCrossOver, IEntryCondition higherTimeFrameEntryCondition)
     {
         _bars = bars;

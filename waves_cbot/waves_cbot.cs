@@ -107,18 +107,18 @@ namespace cAlgo.Robots
             var positionSizeCalculator =
                 new PositionSizeCalculator(Account, DepositRiskPercentage, Symbol, Quantity, PositionSizeType);
 
-            var stopLossCalculator = new WavesStopLossCalculator(StopLossInPips, Bars, _wavesIndicator, StopLossRelativeToSlowBand, Symbol, StopLossRelativeToFastBand, StopLossRelativeToFastBandTrigger);
+            var stopLossCalculator = new StopLossCalculator(StopLossInPips, Bars, _wavesIndicator, StopLossRelativeToSlowBand, Symbol, StopLossRelativeToFastBand, StopLossRelativeToFastBandTrigger);
 
-            var takeProfitCalculator = new WavesTakeProfitCalculator(TakeProfit);
+            var takeProfitCalculator = new TakeProfitCalculator(TakeProfit);
 
             _positionManager = new PositionManager(ClosePosition, Positions, Label, SymbolName, Print, ExecuteMarketOrder, stopLossCalculator, positionSizeCalculator, takeProfitCalculator);
 
             var higherTimeFrameEntryCondition =
                 new HigherTimeFrameEntryCondition(Bars, _wavesIndicator, HigherTimeFrameCondition);
 
-            var entrySignalGenerator = new WavesEntrySignalGenerator(Bars, Symbol, History, _wavesIndicator, RequiredBandsDistanceToEnter, PriceToFastBandMaximalDistance, EntryNumberPerCrossOver, higherTimeFrameEntryCondition);
+            var entrySignalGenerator = new EntrySignalGenerator(Bars, Symbol, History, _wavesIndicator, RequiredBandsDistanceToEnter, PriceToFastBandMaximalDistance, EntryNumberPerCrossOver, higherTimeFrameEntryCondition);
 
-            var exitSignalGenerator = new WavesExitSignalGenerator(Bars, _wavesIndicator, ExitIfPriceCrossesSlowerBand, BandsCrossoverExit);
+            var exitSignalGenerator = new ExitSignalGenerator(Bars, _wavesIndicator, ExitIfPriceCrossesSlowerBand, BandsCrossoverExit);
 
             _tradeManager = new TradeManager(entrySignalGenerator,
                 Print, _positionManager, exitSignalGenerator);

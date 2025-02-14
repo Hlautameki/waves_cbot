@@ -2,14 +2,14 @@ using cAlgo.API;
 
 namespace cAlgo.Robots;
 
-public class WavesExitSignalGenerator : IExitSignalGenerator
+public class ExitSignalGenerator : IExitSignalGenerator
 {
     private readonly Bars _bars;
     private readonly FourMovingAveragesWithCloud _waves;
     private readonly bool _exitIfPriceCrossesSlowerBand;
     private readonly bool _bandsCrossoverExit;
 
-    public WavesExitSignalGenerator(Bars bars, FourMovingAveragesWithCloud waves, bool exitIfPriceCrossesSlowerBand,
+    public ExitSignalGenerator(Bars bars, FourMovingAveragesWithCloud waves, bool exitIfPriceCrossesSlowerBand,
         bool bandsCrossoverExit)
     {
         _bars = bars;
