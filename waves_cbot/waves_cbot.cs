@@ -77,6 +77,9 @@ namespace cAlgo.Robots
         [Parameter("Higher TimeFrame Condition", DefaultValue = HigherTimeFrameConditionEnum.None, Group = "Entry")]
         public HigherTimeFrameConditionEnum HigherTimeFrameCondition { get; set; }
 
+        [Parameter("Direction Entry Condition", DefaultValue = DirectionEnum.Both, Group = "Entry")]
+        public DirectionEnum DirectionEntryCondition { get; set; }
+
         [Parameter("Exit if price crosses slower band", DefaultValue = false, Group = "Exit")]
         public bool ExitIfPriceCrossesSlowerBand { get; set; }
 
@@ -116,7 +119,9 @@ namespace cAlgo.Robots
             var higherTimeFrameEntryCondition =
                 new HigherTimeFrameEntryCondition(Bars, _wavesIndicator, HigherTimeFrameCondition);
 
-            var entrySignalGenerator = new EntrySignalGenerator(Bars, Symbol, History, _wavesIndicator, RequiredBandsDistanceToEnter, PriceToFastBandMaximalDistance, EntryNumberPerCrossOver, higherTimeFrameEntryCondition);
+            var directionEntryCondition = new DirectionEntryCondition(DirectionEntryCondition);
+
+            var entrySignalGenerator = new EntrySignalGenerator(Bars, Symbol, History, _wavesIndicator, RequiredBandsDistanceToEnter, PriceToFastBandMaximalDistance, EntryNumberPerCrossOver, higherTimeFrameEntryCondition, directionEntryCondition);
 
             var exitSignalGenerator = new ExitSignalGenerator(Bars, _wavesIndicator, ExitIfPriceCrossesSlowerBand, BandsCrossoverExit);
 
