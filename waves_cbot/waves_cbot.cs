@@ -80,6 +80,9 @@ namespace cAlgo.Robots
         [Parameter("Direction Entry Condition", DefaultValue = DirectionEnum.Both, Group = "Entry")]
         public DirectionEnum DirectionEntryCondition { get; set; }
 
+        [Parameter("Retest required", DefaultValue = false, Group = "Entry")]
+        public bool IsRetestRequired { get; set; }
+
         [Parameter("Exit if price crosses slower band", DefaultValue = false, Group = "Exit")]
         public bool ExitIfPriceCrossesSlowerBand { get; set; }
 
@@ -121,7 +124,9 @@ namespace cAlgo.Robots
 
             var directionEntryCondition = new DirectionEntryCondition(DirectionEntryCondition);
 
-            var entrySignalGenerator = new EntrySignalGenerator(Bars, Symbol, History, _wavesIndicator, RequiredBandsDistanceToEnter, PriceToFastBandMaximalDistance, EntryNumberPerCrossOver, higherTimeFrameEntryCondition, directionEntryCondition);
+            var retestEntryCondition = new RetestEntryCondition(IsRetestRequired, Bars, _wavesIndicator);
+
+            var entrySignalGenerator = new EntrySignalGenerator(Bars, Symbol, History, _wavesIndicator, RequiredBandsDistanceToEnter, PriceToFastBandMaximalDistance, EntryNumberPerCrossOver, higherTimeFrameEntryCondition, directionEntryCondition, retestEntryCondition);
 
             var exitSignalGenerator = new ExitSignalGenerator(Bars, _wavesIndicator, ExitIfPriceCrossesSlowerBand, BandsCrossoverExit);
 

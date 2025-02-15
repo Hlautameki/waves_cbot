@@ -15,6 +15,7 @@ public class EntrySignalGenerator : IEntrySignalGenerator
     private readonly int _entryNumberPerCrossOver;
     private readonly IEntryCondition _higherTimeFrameEntryCondition;
     private readonly IEntryCondition _directionEntryCondition;
+    private readonly IEntryCondition _retestEntryCondition;
 
     public EntrySignalGenerator(
         Bars bars,
@@ -25,7 +26,8 @@ public class EntrySignalGenerator : IEntrySignalGenerator
         double priceToFastBandMaximalDistance,
         int entryNumberPerCrossOver,
         IEntryCondition higherTimeFrameEntryCondition,
-        IEntryCondition directionEntryCondition)
+        IEntryCondition directionEntryCondition,
+        IEntryCondition retestEntryCondition)
     {
         _bars = bars;
         _symbol = symbol;
@@ -36,6 +38,7 @@ public class EntrySignalGenerator : IEntrySignalGenerator
         _entryNumberPerCrossOver = entryNumberPerCrossOver;
         _higherTimeFrameEntryCondition = higherTimeFrameEntryCondition;
         _directionEntryCondition = directionEntryCondition;
+        _retestEntryCondition = retestEntryCondition;
     }
 
     public bool CanBuy()
@@ -45,7 +48,8 @@ public class EntrySignalGenerator : IEntrySignalGenerator
                && IsPriceCloseEnoughToFastBand(TradeType.Buy)
                && IsThereARoomForAdditionalTradeInCrossOver(TradeType.Buy)
                && _higherTimeFrameEntryCondition.CanBuy()
-               && _directionEntryCondition.CanBuy();
+               && _directionEntryCondition.CanBuy()
+               && _retestEntryCondition.CanBuy();
     }
 
     private bool FastBandMovesAboveSlowBand()
@@ -66,7 +70,8 @@ public class EntrySignalGenerator : IEntrySignalGenerator
                && IsPriceCloseEnoughToFastBand(TradeType.Sell)
                && IsThereARoomForAdditionalTradeInCrossOver(TradeType.Sell)
                && _higherTimeFrameEntryCondition.CanSell()
-               && _directionEntryCondition.CanSell();
+               && _directionEntryCondition.CanSell()
+               && _retestEntryCondition.CanSell();
     }
 
     private bool FastBandMovesBelowSlowBand()
@@ -107,7 +112,7 @@ public class EntrySignalGenerator : IEntrySignalGenerator
         int buyOrders = 0;
         int sellOrders = 0;
 
-        DateTime? lastCrossoverTime = GetLastCrossoverTime();
+        DateTime? lastCrossoverTime = LastCrossoverTimeHelper.GetLastCrossoverTime(_bars, _waves);
 
         foreach (var deal in _history)
         {
@@ -128,35 +133,5 @@ public class EntrySignalGenerator : IEntrySignalGenerator
         {
             return sellOrders < _entryNumberPerCrossOver;
         }
-    }
-
-    private DateTime? GetLastCrossoverTime()
-    {
-        for (int i = _bars.Count - 2; i >= 0; i--) // Start from the second-to-last bar
-        {
-            double fastPrev = _waves.FastLowMA[i + 1];// _fastMA.Result[i + 1];
-            double slowPrev = _waves.SlowHighMA[i + 1];// _slowMA.Result[i + 1];
-            double fastCurrent = _waves.FastLowMA[i];// _fastMA.Result[i];
-            double slowCurrent = _waves.SlowHighMA[i];// _slowMA.Result[i];
-
-            // Check for crossover
-            if (CrossLong() || CrossShort())
-            {
-                return _bars.OpenTimes[i]; // Return the time of the crossover
-            }
-
-            bool CrossLong()
-            {
-                return _waves.FastLowMA[i + 1] <= _waves.SlowHighMA[i + 1] && _waves.FastLowMA[i] > _waves.SlowHighMA[i];
-            }
-
-            bool CrossShort()
-            {
-                return _waves.FastHighMA[i + 1] >= _waves.SlowLowMA[i + 1] && _waves.FastHighMA[i] < _waves.SlowLowMA[i];
-            }
-        }
-
-
-        return null; // Return null if no crossover is found
     }
 }
