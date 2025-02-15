@@ -8,12 +8,14 @@ public class RetestEntryCondition : IEntryCondition
     private readonly bool _retestRequired;
     private readonly Bars _bars;
     private readonly FourMovingAveragesWithCloud _waves;
+    private readonly int _retestValidityLength;
 
-    public RetestEntryCondition(bool retestRequired, Bars bars, FourMovingAveragesWithCloud waves)
+    public RetestEntryCondition(bool retestRequired, Bars bars, FourMovingAveragesWithCloud waves, int retestValidityLength)
     {
         _retestRequired = retestRequired;
         _bars = bars;
         _waves = waves;
+        _retestValidityLength = retestValidityLength;
     }
 
     public bool CanBuy()
@@ -49,6 +51,32 @@ public class RetestEntryCondition : IEntryCondition
     private bool CheckIfContactTookPlace(TradeType tradeType)
     {
         var lastCrossoverTime = LastCrossoverTimeHelper.GetLastCrossoverTime(_bars, _waves);
+
+        if (lastCrossoverTime is null)
+            return false;
+
+        if (_retestValidityLength > 0)
+        {
+            int pastIndex = _bars.OpenTimes.GetIndexByTime(lastCrossoverTime.Value);
+
+            if (pastIndex == -1)
+            {
+                return false;
+            }
+
+            // Get the latest bar index
+            int currentIndex = _bars.Count - 1;
+
+            // Calculate distance in bars
+            int distanceInBars = currentIndex - pastIndex;
+
+            Logger.Log($"pastIndex: {pastIndex}; currentIndex: {currentIndex}; distance: {distanceInBars}");
+
+            if (distanceInBars > _retestValidityLength)
+            {
+                return true;
+            }
+        }
 
         var lastContactTime = GetTimeOfLastPriceWithFastBandContact(tradeType);
 

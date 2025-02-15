@@ -83,6 +83,9 @@ namespace cAlgo.Robots
         [Parameter("Retest required", DefaultValue = false, Group = "Entry")]
         public bool IsRetestRequired { get; set; }
 
+        [Parameter("Retest Validity Length (in periods/bars)", DefaultValue = 0, Group = "Entry")]
+        public int RetestValidityLength { get; set; }
+
         [Parameter("Exit if price crosses slower band", DefaultValue = false, Group = "Exit")]
         public bool ExitIfPriceCrossesSlowerBand { get; set; }
 
@@ -124,7 +127,7 @@ namespace cAlgo.Robots
 
             var directionEntryCondition = new DirectionEntryCondition(DirectionEntryCondition);
 
-            var retestEntryCondition = new RetestEntryCondition(IsRetestRequired, Bars, _wavesIndicator);
+            var retestEntryCondition = new RetestEntryCondition(IsRetestRequired, Bars, _wavesIndicator, RetestValidityLength);
 
             var entrySignalGenerator = new EntrySignalGenerator(Bars, Symbol, History, _wavesIndicator, RequiredBandsDistanceToEnter, PriceToFastBandMaximalDistance, EntryNumberPerCrossOver, higherTimeFrameEntryCondition, directionEntryCondition, retestEntryCondition);
 
