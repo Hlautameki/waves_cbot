@@ -2,7 +2,7 @@ using cAlgo.API;
 
 namespace cAlgo.Robots
 {
-    [Robot(AccessRights = AccessRights.FullAccess, AddIndicators = true)]
+    [Robot(AccessRights = AccessRights.None, AddIndicators = true)]
     public class waves_cbot : Robot
     {
         [Parameter("Position Size Type", DefaultValue = PositionSizeType.Fixed, Group = "Volume")]
@@ -65,6 +65,9 @@ namespace cAlgo.Robots
         [Parameter("Take Profit", DefaultValue = false, Group = "Take Profit")]
         public double TakeProfit { get; set; }
 
+        [Parameter("Trade Pyramid Size", DefaultValue = 0, Group = "Take Profit")]
+        public int TradePyramidSize { get; set; }
+
         [Parameter("Required bands distance to enter", DefaultValue = 0, Group = "Entry")]
         public double RequiredBandsDistanceToEnter { get; set; }
 
@@ -117,7 +120,7 @@ namespace cAlgo.Robots
             _wavesIndicator = Indicators.GetIndicator<FourMovingAveragesWithCloud>(FastMaPeriod, SlowMaPeriod, UltimateMaPeriod,this.HigherTimeFrameCondition != HigherTimeFrameConditionEnum.None, MaType);
 
             var positionSizeCalculator =
-                new PositionSizeCalculator(Account, DepositRiskPercentage, Symbol, Quantity, PositionSizeType);
+                new PositionSizeCalculator(Account, History, DepositRiskPercentage, Symbol, Quantity, PositionSizeType, TradePyramidSize, Label);
 
             var stopLossCalculator = new StopLossCalculator(StopLossInPips, Bars, _wavesIndicator, StopLossRelativeToSlowBand, Symbol, StopLossRelativeToFastBand, StopLossRelativeToFastBandTrigger);
 

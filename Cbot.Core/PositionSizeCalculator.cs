@@ -1,61 +1,104 @@
 using System;
+using System.Linq;
+using cAlgo.API;
 using cAlgo.API.Internals;
 
-namespace cAlgo.Robots;
-
-public class PositionSizeCalculator
+namespace cAlgo.Robots
 {
-    private readonly IAccount _account;
-    private readonly double _depositRiskPercentage;
-    private readonly Symbol _symbol;
-    private readonly double _quantity;
-    private readonly PositionSizeType _positionSizeType;
-
-    public PositionSizeCalculator(IAccount account, double depositRiskPercentage, Symbol symbol, double quantity, PositionSizeType positionSizeType)
+    public class PositionSizeCalculator
     {
-        _account = account;
-        _depositRiskPercentage = depositRiskPercentage;
-        _symbol = symbol;
-        _quantity = quantity;
-        _positionSizeType = positionSizeType;
-    }
+        private readonly IAccount _account;
+        private readonly History _history;
+        private readonly double _depositRiskPercentage;
+        private readonly Symbol _symbol;
+        private readonly double _quantity;
+        private readonly PositionSizeType _positionSizeType;
+        private readonly int _pyramidSize;
+        private readonly string _label;
 
-    public double CalculatePositionSize(double? stopLossPips)
-    {
-        if (_positionSizeType == PositionSizeType.Fixed)
+        public PositionSizeCalculator(IAccount account, History history, double depositRiskPercentage, Symbol symbol, double quantity, PositionSizeType positionSizeType, int pyramidSize, string label)
         {
-            return GetVolumeInUnits(_quantity);
+            _account = account;
+            _history = history;
+            _depositRiskPercentage = depositRiskPercentage;
+            _symbol = symbol;
+            _quantity = quantity;
+            _positionSizeType = positionSizeType;
+            _pyramidSize = pyramidSize;
+            _label = label;
         }
-        else
+
+        public double CalculatePositionSize(double? stopLossPips)
         {
-            if (stopLossPips is null or 0)
+            if (_positionSizeType == PositionSizeType.Fixed)
             {
-                throw new ArgumentException("Stop Loss In Pips can not be null or zero if Position Size Type is Relative");
+                return GetVolumeInUnits(_quantity);
+            }
+            else
+            {
+                if (stopLossPips is null or 0)
+                {
+                    throw new ArgumentException("Stop Loss in Pips cannot be null or zero if Position Size Type is Relative");
+                }
+
+                return GetRelativePositionSize((double)stopLossPips);
+            }
+        }
+
+        private double GetRelativePositionSize(double stopLossInPips)
+        {
+            // Retrieve the account equity
+            double accountEquity = _account.Equity;
+
+            // Base risk amount (1% of equity, for example)
+            double baseRiskAmount = accountEquity * (_depositRiskPercentage / 100);
+
+            baseRiskAmount = GetPyramidAdjustedPositionSize();
+
+            double GetPyramidAdjustedPositionSize()
+            {
+                return baseRiskAmount + GetConsecutiveProfitableTradesValue();
             }
 
-            return GetRelativePositionSize((double)stopLossPips);
+            // Calculate the value of one pip for a standard lot
+            double pipValuePerLot = _symbol.PipValue * _symbol.LotSize;
+
+            // Calculate position size based on adjusted risk
+            double positionSize = (baseRiskAmount / (stopLossInPips * pipValuePerLot));
+
+            return _symbol.NormalizeVolumeInUnits(GetVolumeInUnits(positionSize));
         }
-    }
 
-    private double GetRelativePositionSize(double stopLossInPips)
-    {
-        // Retrieve the value of the deposit (account equity)
-        double accountEquity = _account.Equity;
+        private double GetConsecutiveProfitableTradesValue()
+        {
+            // Get last `_pyramidSize` closed trades for the current symbol
+            var closedTrades = _history.FindAll(_label)
+                .OrderByDescending(trade => trade.ClosingTime)
+                .Take(_pyramidSize);
 
-        // Calculate risk (in currency) based on equity and risk percentage
-        double riskAmount = accountEquity * (_depositRiskPercentage / 100);
+            double cumulateValue = 0;
 
-        // Calculate the value of one pip for a standard lot
-        double pipValuePerLot = _symbol.PipValue * _symbol.LotSize;
+            int consecutiveProfitableTrades = 1;
 
-        // Calculate the position size (in lots) needed to risk the given amount with the specified stop loss
-        double positionSize = (riskAmount / (stopLossInPips * pipValuePerLot));
+            foreach (var trade in closedTrades)
+            {
+                if (trade.NetProfit > 0 && consecutiveProfitableTrades < _pyramidSize)
+                {
+                    consecutiveProfitableTrades++;
+                    cumulateValue += trade.NetProfit;
+                }
+                else
+                {
+                    break; // Stop counting if a loss is encountered
+                }
+            }
 
-        return _symbol.NormalizeVolumeInUnits(GetVolumeInUnits(positionSize));
-    }
+            return cumulateValue;
+        }
 
-    private double GetVolumeInUnits(double quantity)
-    {
-        return _symbol.QuantityToVolumeInUnits(quantity);
+        private double GetVolumeInUnits(double quantity)
+        {
+            return _symbol.QuantityToVolumeInUnits(quantity);
+        }
     }
 }
