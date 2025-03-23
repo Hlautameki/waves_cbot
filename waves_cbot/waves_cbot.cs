@@ -46,6 +46,9 @@ namespace cAlgo.Robots
         [Parameter("Relative to slow band", DefaultValue = 0, Group = "Stop Loss")]
         public double StopLossRelativeToSlowBand { get; set; }
 
+        [Parameter("Relative to fast band Initial", DefaultValue = 0, Group = "Stop Loss")]
+        public double StopLossRelativeToFastBandInitial { get; set; }
+
         [Parameter("Relative to fast band", DefaultValue = 0, Group = "Stop Loss")]
         public double StopLossRelativeToFastBand { get; set; }
 
@@ -122,11 +125,14 @@ namespace cAlgo.Robots
             var positionSizeCalculator =
                 new PositionSizeCalculator(Account, History, DepositRiskPercentage, Symbol, Quantity, PositionSizeType, TradePyramidSize, Label);
 
-            var stopLossCalculator = new StopLossCalculator(StopLossInPips, Bars, _wavesIndicator, StopLossRelativeToSlowBand, Symbol, StopLossRelativeToFastBand, StopLossRelativeToFastBandTrigger);
+            var initialStopLossCalculator = new InitialStopLossCalculator(StopLossInPips, Bars, _wavesIndicator,
+                StopLossRelativeToSlowBand, Symbol, StopLossRelativeToFastBandInitial);
+
+            var stopLossCalculator = new StopLossCalculator(Bars, _wavesIndicator, StopLossRelativeToSlowBand, Symbol, StopLossRelativeToFastBand, StopLossRelativeToFastBandTrigger);
 
             var takeProfitCalculator = new TakeProfitCalculator(TakeProfit);
 
-            _positionManager = new PositionManager(ClosePosition, Positions, Label, SymbolName, Print, ExecuteMarketOrder, stopLossCalculator, positionSizeCalculator, takeProfitCalculator);
+            _positionManager = new PositionManager(ClosePosition, Positions, Label, SymbolName, Print, ExecuteMarketOrder, stopLossCalculator, positionSizeCalculator, takeProfitCalculator, initialStopLossCalculator);
 
             var higherTimeFrameEntryCondition =
                 new HigherTimeFrameEntryCondition(Bars, _wavesIndicator, HigherTimeFrameCondition);

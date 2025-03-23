@@ -15,6 +15,7 @@ public class PositionManager
     private readonly IStopLossCalculator _stopLossCalculator;
     private readonly PositionSizeCalculator _positionSizeCalculator;
     private readonly ITakeProfitCalculator _takeProfitCalculator;
+    private readonly IInitialStopLossCalculator _initialStopLossCalculator;
 
 
     public PositionManager(Func<Position, TradeResult> closePosition,
@@ -24,7 +25,8 @@ public class PositionManager
         Func<TradeType, string, double, string, double?, double?, TradeResult> executeMarketOrder,
         IStopLossCalculator stopLossCalculator,
         PositionSizeCalculator positionSizeCalculator,
-        ITakeProfitCalculator takeProfitCalculator)
+        ITakeProfitCalculator takeProfitCalculator,
+        IInitialStopLossCalculator initialStopLossCalculator)
     {
         _closePosition = closePosition;
         _positions = positions;
@@ -35,6 +37,7 @@ public class PositionManager
         _stopLossCalculator = stopLossCalculator;
         _positionSizeCalculator = positionSizeCalculator;
         _takeProfitCalculator = takeProfitCalculator;
+        _initialStopLossCalculator = initialStopLossCalculator;
     }
 
     public void CloseAll(TradeType tradeType)
@@ -51,7 +54,7 @@ public class PositionManager
         var openedPositions = _positions.FindAll(_label, _symbolName, tradeType);
         if (!openedPositions.Any())
         {
-            var stopLoss = _stopLossCalculator.GetStopLoss(tradeType);
+            var stopLoss = _initialStopLossCalculator.GetInitialStopLossInPips(tradeType);
             var takeProfit = _takeProfitCalculator.CalculateTakeProfit();
             var positionSize = _positionSizeCalculator.CalculatePositionSize(stopLoss);
             _executeMarketOrder(tradeType, _symbolName, positionSize, _label, stopLoss, takeProfit);

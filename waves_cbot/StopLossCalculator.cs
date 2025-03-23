@@ -8,7 +8,6 @@ namespace cAlgo.Robots;
 
 public class StopLossCalculator : IStopLossCalculator
 {
-    private readonly double _stopLossInPipsFixed;
     private readonly Bars _bars;
     private readonly FourMovingAveragesWithCloud _waves;
     private readonly double _stopLossRelativeToSlowBand;
@@ -16,67 +15,16 @@ public class StopLossCalculator : IStopLossCalculator
     private readonly double _stopLossRelativeToFastBand;
     private readonly double _stopLossRelativeToFastBandTrigger;
 
-    public StopLossCalculator(double stopLossInPipsFixed, Bars bars, FourMovingAveragesWithCloud waves,
+    public StopLossCalculator(Bars bars, FourMovingAveragesWithCloud waves,
         double stopLossRelativeToSlowBand, Symbol symbol, double stopLossRelativeToFastBand,
         double stopLossRelativeToFastBandTrigger)
     {
-        _stopLossInPipsFixed = stopLossInPipsFixed;
         _bars = bars;
         _waves = waves;
         _stopLossRelativeToSlowBand = stopLossRelativeToSlowBand;
         _symbol = symbol;
         _stopLossRelativeToFastBand = stopLossRelativeToFastBand;
         _stopLossRelativeToFastBandTrigger = stopLossRelativeToFastBandTrigger;
-    }
-
-    public double? GetStopLoss(TradeType tradeType)
-    {
-        var stopLossInPipsRelativeToSlowBand = GetStopLossInPipsRelativeToSlowBand(tradeType);
-
-        var stopLossInPipsRelativeToFastBand = GetStopLossInPipsRelativeToFastBand(tradeType);
-
-        return GetLowestNonZeroValue(stopLossInPipsRelativeToSlowBand, stopLossInPipsRelativeToFastBand, _stopLossInPipsFixed);
-    }
-
-    private double GetStopLossInPipsRelativeToSlowBand(TradeType tradeType)
-    {
-        if (_stopLossRelativeToSlowBand > 0)
-        {
-            if (tradeType == TradeType.Buy)
-            {
-                return (_bars.LastBar.Close - (_waves.SlowLowMA.LastValue - _stopLossRelativeToSlowBand * _symbol.PipSize))/_symbol.PipSize;
-            }
-            else
-            {
-                return ((_waves.SlowHighMA.LastValue + _stopLossRelativeToSlowBand * _symbol.PipSize) - _bars.LastBar.Close)/_symbol.PipSize;
-            }
-        }
-
-        return 0;
-    }
-
-    private double GetStopLossInPipsRelativeToFastBand(TradeType tradeType)
-    {
-        if (_stopLossRelativeToFastBand > 0)
-        {
-            var priceMovementSinceEntry = GetPriceMovementSinceEntry(_bars.LastBar.Close, _bars.LastBar.OpenTime, tradeType);
-
-            if (_stopLossRelativeToFastBandTrigger > 0 && priceMovementSinceEntry < _stopLossRelativeToFastBandTrigger)
-                return 0;
-
-            if (tradeType == TradeType.Buy)
-            {
-                return (_bars.LastBar.Close -
-                        (_waves.FastLowMA.LastValue - _stopLossRelativeToFastBand * _symbol.PipSize)) / _symbol.PipSize;
-            }
-            else
-            {
-                return ((_waves.FastHighMA.LastValue + _stopLossRelativeToFastBand * _symbol.PipSize) -
-                        _bars.LastBar.Close) / _symbol.PipSize;
-            }
-        }
-
-        return 0;
     }
 
     public double? GetStopLossInPrice(Position position)
@@ -125,17 +73,6 @@ public class StopLossCalculator : IStopLossCalculator
         }
 
         return 0;
-    }
-
-    static double GetLowestNonZeroValue(double a, double b, double c)
-    {
-        double[] values = { a, b, c };
-        var nonZeroValues = values.Where(val => val != 0).ToArray();
-
-        if (!nonZeroValues.Any())
-            return 0;
-
-        return nonZeroValues.Min();
     }
 
     private double GetStopLossPrice(double price1, double price2, double price3, TradeType tradeType)
