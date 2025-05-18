@@ -128,7 +128,7 @@ namespace cAlgo.Robots
             var initialStopLossCalculator = new InitialStopLossCalculator(StopLossInPips, Bars, _wavesIndicator,
                 StopLossRelativeToSlowBand, Symbol, StopLossRelativeToFastBandInitial);
 
-            var stopLossCalculator = new StopLossCalculator(Bars, _wavesIndicator, StopLossRelativeToSlowBand, Symbol, StopLossRelativeToFastBand, StopLossRelativeToFastBandTrigger);
+            var stopLossCalculator = new TrailingStopLossCalculator(Bars, _wavesIndicator, StopLossRelativeToSlowBand, Symbol, StopLossRelativeToFastBand, StopLossRelativeToFastBandTrigger);
 
             var takeProfitCalculator = new TakeProfitCalculator(TakeProfit);
 

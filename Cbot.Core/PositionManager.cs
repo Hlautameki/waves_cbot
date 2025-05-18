@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using cAlgo.API;
 
 namespace cAlgo.Robots;
@@ -12,7 +10,7 @@ public class PositionManager
     private readonly string _symbolName;
     private readonly Action<string, object[]> _printAction;
     private readonly Func<TradeType, string, double, string, double?, double?, TradeResult> _executeMarketOrder;
-    private readonly IStopLossCalculator _stopLossCalculator;
+    private readonly ITrailingStopLossCalculator _trailingStopLossCalculator;
     private readonly PositionSizeCalculator _positionSizeCalculator;
     private readonly ITakeProfitCalculator _takeProfitCalculator;
     private readonly IInitialStopLossCalculator _initialStopLossCalculator;
@@ -23,7 +21,7 @@ public class PositionManager
         string symbolName,
         Action<string, object[]> print,
         Func<TradeType, string, double, string, double?, double?, TradeResult> executeMarketOrder,
-        IStopLossCalculator stopLossCalculator,
+        ITrailingStopLossCalculator trailingStopLossCalculator,
         PositionSizeCalculator positionSizeCalculator,
         ITakeProfitCalculator takeProfitCalculator,
         IInitialStopLossCalculator initialStopLossCalculator)
@@ -34,7 +32,7 @@ public class PositionManager
         _symbolName = symbolName;
         _printAction = print;
         _executeMarketOrder = executeMarketOrder;
-        _stopLossCalculator = stopLossCalculator;
+        _trailingStopLossCalculator = trailingStopLossCalculator;
         _positionSizeCalculator = positionSizeCalculator;
         _takeProfitCalculator = takeProfitCalculator;
         _initialStopLossCalculator = initialStopLossCalculator;
@@ -67,7 +65,7 @@ public class PositionManager
         {
             var lastPosition = _positions.Last();
 
-            var stopLossNew = _stopLossCalculator.GetStopLossInPrice(lastPosition);
+            var stopLossNew = _trailingStopLossCalculator.GetStopLossInPrice(lastPosition);
 
             if (lastPosition.TradeType == TradeType.Buy && lastPosition.StopLoss > stopLossNew)
                 return;

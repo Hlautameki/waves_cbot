@@ -6,7 +6,7 @@ using cAlgo.API.Internals;
 
 namespace cAlgo.Robots;
 
-public class StopLossCalculator : IStopLossCalculator
+public class TrailingStopLossCalculator : ITrailingStopLossCalculator
 {
     private readonly Bars _bars;
     private readonly FourMovingAveragesWithCloud _waves;
@@ -15,7 +15,7 @@ public class StopLossCalculator : IStopLossCalculator
     private readonly double _stopLossRelativeToFastBand;
     private readonly double _stopLossRelativeToFastBandTrigger;
 
-    public StopLossCalculator(Bars bars, FourMovingAveragesWithCloud waves,
+    public TrailingStopLossCalculator(Bars bars, FourMovingAveragesWithCloud waves,
         double stopLossRelativeToSlowBand, Symbol symbol, double stopLossRelativeToFastBand,
         double stopLossRelativeToFastBandTrigger)
     {

@@ -2,7 +2,7 @@ using cAlgo.API;
 
 namespace cAlgo.Robots;
 
-public interface IStopLossCalculator
+public interface ITrailingStopLossCalculator
 {
     double? GetStopLossInPrice(Position position);
 }
